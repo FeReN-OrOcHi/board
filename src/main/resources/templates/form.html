@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Board</title>
+</head>
+<body>
+<h1>Write</h1>
+<h2 th:text="${board?.index} ? 'Board Info' : 'Board Submit'"></h2>
+<br/>
+<input id="boardIndex" th:value="${board.index}" type="hidden">
+<input id="boardCreationDate" th:value="${board.creationDate}" type="hidden">
+<table>
+    <tr>
+        <th>
+            <label for="creationDate">Creation Date</label>
+        </th>
+        <td>
+            <input id="creationDate" th:value="${#dates.format(board.creationDate,'yyyy-MM-dd HH:mm')}" readonly>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <label for="title">Title</label>
+        </th>
+        <td>
+            <input id="title" type="text" th:value="${board?.title}">
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <label for="content">Content</label>
+        </th>
+        <td>
+                <textarea id="content" th:text="${board?.content}" rows="20" maxlength="200"
+                          style="height: 200px;"></textarea>
+        </td>
+    </tr>
+</table>
+<br/>
+<a href="/board/list">Go to boards</a>
+<button th:if="!${board?.index}" type="button" id="post">Post</button>
+<button th:if="${board?.index}" type="button" id="update">Update</button>
+<button th:if="${board?.index}" type="button" id="delete">Delete</button>
+<br/>
+<script th:if="!${board?.index}">
+    document.querySelector("#post")
+        .addEventListener("click", function () {
+            const xhr = new XMLHttpRequest();
+            const jsonData = {
+                title: document.querySelector("#title").value,
+                content: document.querySelector("#content").value
+            };
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === xhr.DONE) {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        location.href = "/board/list";
+                    }
+                }
+            }
+            xhr.open('POST', "http://localhost:8080/board/");
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(jsonData));
+        });
+</script>
+<script th:if="${board?.index}">
+    document.querySelector("#update")
+        .addEventListener("click", function () {
+            const xhr = new XMLHttpRequest();
+            const jsonData = {
+                title: document.querySelector("#title").value,
+                content: document.querySelector("#content").value
+            };
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === xhr.DONE) {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        location.href = "/board/list";
+                    }
+                }
+            }
+            xhr.open('PUT', "http://localhost:8080/board/" + document.querySelector("#boardIndex").value);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(jsonData));
+        });
+    document.querySelector("#delete")
+        .addEventListener("click", function () {
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === xhr.DONE) {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        location.href = "/board/list";
+                    }else{
+                        console.error(xhr)
+                    }
+                }
+            }
+            console.log("http://localhost:8080/board/" + document.querySelector("#boardIndex").value)
+            xhr.open('DELETE', "http://localhost:8080/board/" + document.querySelector("#boardIndex").value);
+            xhr.send()
+        });
+</script>
+</body>
+</html>
